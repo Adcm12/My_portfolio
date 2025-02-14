@@ -14,10 +14,10 @@ class AdministradorTareas:
                f"Tarea: {self.tarea}\n" \
                f"Fecha de inicio: {self.fecha_inicio}\n" \
                f"Fecha de vencimiento: {self.fecha_vencimiento}\n" \
-               f"Fecha de finalizacion: {self.fecha_finalizacion if self.fecha_finalizacion else 'Pendiente'}"
+               f"Fecha de finalizacion: {self.fecha_finalizacion if self.fecha_finalizacion else 'Pendiente'}\n"\
+               f"Descripción: {self.descripcion if self.descripcion else 'Sin descripción'}"
 
     def crear_tabla(self):
-
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS tareas (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -31,7 +31,6 @@ class AdministradorTareas:
         self.conexion.commit()
 
     def crear_tarea(self, tarea, fecha_vencimiento, descripcion=None):
-
         fecha_inicio = datetime.date.today().strftime("%d/%m/%Y")
         self.cursor.execute("""
             INSERT INTO tareas (tarea, fecha_inicio, fecha_vencimiento, fecha_finalizacion, descripcion)
@@ -51,11 +50,11 @@ class AdministradorTareas:
             tarea_obj.fecha_inicio = tarea[2]
             tarea_obj.fecha_vencimiento = tarea[3]
             tarea_obj.fecha_finalizacion = tarea[4]
+            tarea_obj.descripcion = tarea[5]
             tareas_obj.append(tarea_obj)
         return tareas_obj
-        
 
-    def actualizar_tarea(self, id_tarea, tarea=None, fecha_vencimiento=None, fecha_finalizacion=None, descripcion=None):
+    def actualizar_tarea(self, id_tarea, tarea=None, fecha_vencimiento=None, descripcion=None):
         campos_actualizar = []
         valores_actualizar = []
         if tarea:
@@ -64,9 +63,6 @@ class AdministradorTareas:
         if fecha_vencimiento:
             campos_actualizar.append("fecha_vencimiento = ?")
             valores_actualizar.append(fecha_vencimiento)
-        if fecha_finalizacion:
-            campos_actualizar.append("fecha_finalizacion = ?")
-            valores_actualizar.append(fecha_finalizacion)
         if descripcion:
             campos_actualizar.append("descripcion = ?")
             valores_actualizar.append(descripcion)
@@ -84,7 +80,7 @@ class AdministradorTareas:
         self.cursor.execute(sql, tuple(valores_actualizar))
         self.conexion.commit()
         return self.cursor.rowcount > 0
-    
+
     def finalizar_tarea(self, id_tarea):
         fecha_finalizacion = datetime.date.today().strftime("%d/%m/%Y")
         self.cursor.execute("""
